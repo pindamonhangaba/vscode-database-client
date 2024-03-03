@@ -50,7 +50,7 @@ export class FileManager {
     }
 
 
-    private static check(checkPath: string) {
+    public static check(checkPath: string) {
         if (!fs.existsSync(checkPath)) { this.recursiseCreate(checkPath) }
 
     }

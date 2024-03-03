@@ -82,11 +82,6 @@
 					"id": "github-cweijan-mysql",
 					"title": "Database",
 					"icon": "resources/icon/database-container.svg"
-				},
-				{
-					"id": "github-cweijan-nosql",
-					"title": "NoSQL",
-					"icon": "resources/image/other-container.png"
 				}
 			]
 		},
@@ -95,9 +90,11 @@
 				{
 					"id": "github.cweijan.mysql",
 					"name": "Database"
-				}
-			],
-			"github-cweijan-nosql": [
+				},
+				{
+					"id": "github.cweijan.scripts",
+					"name": "Scripts"
+				},
 				{
 					"id": "github.cweijan.nosql",
 					"name": "NoSQL"
@@ -105,6 +102,44 @@
 			]
 		},
 		"commands": [
+			{
+				"command": "github.cweijan.scripts.renameFile",
+				"title": "Rename"
+			},
+			{
+				"command": "github.cweijan.scripts.deleteFile",
+				"title": "Delete"
+			},
+			{
+				"command": "github.cweijan.scripts.createFile",
+				"title": "New File",
+				"icon": "$(new-file)"
+			},
+			{
+				"command": "github.cweijan.scripts.renameFolder",
+				"title": "Rename"
+			},
+			{
+				"command": "github.cweijan.scripts.deleteFolder",
+				"title": "Delete"
+			},
+			{
+				"command": "github.cweijan.scripts.createFolder",
+				"title": "New Folder",
+				"icon": "$(new-folder)"
+			},
+			{
+				"command": "github.cweijan.scripts.refreshFile",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "github.cweijan.scripts.openFile",
+				"title": "Open File"
+			},
 			{
 				"command": "mysql.struct.diff",
 				"title": "%command.struct.diff%",
@@ -557,9 +592,49 @@
 					"command": "mysql.util.github",
 					"when": "view == github.cweijan.nosql",
 					"group": "navigation@-3"
+				},
+				{
+					"command": "github.cweijan.scripts.createFolder",
+					"when": "view == github.cweijan.scripts",
+					"group": "navigation@-3"
+				},
+				{
+					"command": "github.cweijan.scripts.createFile",
+					"when": "view == github.cweijan.scripts",
+					"group": "navigation@-3"
 				}
 			],
 			"view/item/context": [
+				{
+					"command": "github.cweijan.scripts.renameFile",
+					"group": "1_rename",
+					"when": "viewItem == file"
+				},
+				{
+					"command": "github.cweijan.scripts.deleteFile",
+					"group": "2_modification",
+					"when": "viewItem == file"
+				},
+				{
+					"command": "github.cweijan.scripts.createFile",
+					"group": "inline",
+					"when": "view =~ /cweijan.scripts/ && viewItem != file"
+				},
+				{
+					"command": "github.cweijan.scripts.renameFolder",
+					"group": "1_rename",
+					"when": "view =~ /cweijan.scripts/ && viewItem != file"
+				},
+				{
+					"command": "github.cweijan.scripts.deleteFolder",
+					"group": "2_modification",
+					"when": "view =~ /cweijan.scripts/ && viewItem != file"
+				},
+				{
+					"command": "github.cweijan.scripts.createFolder",
+					"group": "inline",
+					"when": "view =~ /cweijan.scripts/ && viewItem != file"
+				},
 				{
 					"command": "mysql.refresh",
 					"when": "view =~ /cweijan.+?ql/ && viewItem =~ /^(catalog|esConnection|sshConnection|folder|redisConnection|connection|tableGroup|viewGroup|systemViewGroup|triggerGroup|procedureGroup|functionGroup|table)$/",
@@ -1010,7 +1085,7 @@
 		}
 	},
 	"scripts": {
-		"dev": "webpack --progress",
+		"dev": "cross-env DISABLE_V8_COMPILE_CACHE=1 webpack --progress",
 		"build": "webpack --progress --mode=production",
 		"lib": "webpack --config webpack.config.lib.js --progress -p",
 		"publich": "vsce publish",
@@ -1018,18 +1093,19 @@
 	},
 	"devDependencies": {
 		"@antv/g2": "^4.0.9",
+		"@types/ioredis": "^4.22.0",
 		"@types/mongodb": "^3.6.3",
 		"@types/node": "^12.12.6",
-		"@types/ssh2": "^0.5.43",
-		"@types/vscode": "1.51.0",
 		"@types/pg": "^7.14.7",
 		"@types/redis": "^2.8.18",
+		"@types/ssh2": "^0.5.43",
 		"@types/tedious": "^4.0.3",
+		"@types/vscode": "1.51.0",
 		"copy-webpack-plugin": "^6.3.0",
-		"css-loader": "^3.5.3",
+		"css-loader": "^3.5.3",		
+		"babel-loader": "^8.2.5",
 		"file-loader": "^6.0.0",
 		"html-webpack-plugin": "^4.3.0",
-		"@types/ioredis": "^4.22.0",
 		"postcss": "^8.2.1",
 		"postcss-loader": "^4.1.0",
 		"style-loader": "^1.2.1",
@@ -1048,6 +1124,7 @@
 		"command-exists": "^1.2.9",
 		"comment-json": "^4.1.0",
 		"compare-versions": "^3.6.0",
+		"cross-env": "^7.0.3",
 		"date-format": "^3.0.0",
 		"deepmerge": "^3.2.0",
 		"element-ui": "^2.13.2",

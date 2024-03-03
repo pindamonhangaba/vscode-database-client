@@ -1,5 +1,6 @@
 import { CacheKey, DatabaseType } from "@/common/constants";
 import { SqlCodeLensProvider } from "@/provider/codelen/sqlCodeLensProvider";
+import { FileSystemProvider } from "@/provider/fileExplorer";
 import * as vscode from "vscode";
 import { ExtensionContext } from "vscode";
 import { FileManager } from "../common/filesManager";
@@ -50,6 +51,7 @@ export class ServiceManager {
     public settingService: SettingService;
     public statusService: StatusService;
     public codeLenProvider: SqlCodeLensProvider;
+    public scriptsFileSystemProvider: FileSystemProvider
     private isInit = false;
 
     constructor(private readonly context: ExtensionContext) {
@@ -77,6 +79,7 @@ export class ServiceManager {
         this.initMysqlService();
         res.push(this.initTreeView())
         res.push(this.initTreeProvider())
+        res.push(this.initScriptView());
         // res.push(vscode.window.createTreeView("github.cweijan.history",{treeDataProvider:new HistoryProvider(this.context)}))
         ServiceManager.instance = this;
         this.isInit = true
@@ -95,6 +98,19 @@ export class ServiceManager {
         treeview.onDidExpandElement((event) => {
             DatabaseCache.storeElementState(event.element, vscode.TreeItemCollapsibleState.Expanded);
         });
+        return treeview;
+    }
+
+    private initScriptView() {
+        this.scriptsFileSystemProvider = new FileSystemProvider();
+        vscode.commands.registerCommand("github.cweijan.scripts.openFile", (resource) =>
+            vscode.window.showTextDocument(resource)
+        );
+
+        const treeview = vscode.window.createTreeView(
+          "github.cweijan.scripts",
+          { treeDataProvider: this.scriptsFileSystemProvider }
+        );
         return treeview;
     }
 

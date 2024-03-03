@@ -1,6 +1,8 @@
 "use strict";
 
 import * as vscode from "vscode";
+import * as path from "path";
+import { Util } from "@/common/util";
 import { CodeCommand } from "./common/constants";
 import { ConnectionNode } from "./model/database/connectionNode";
 import { SchemaNode } from "./model/database/schemaNode";
@@ -40,12 +42,14 @@ import { SSHConnectionNode } from "./model/ssh/sshConnectionNode";
 import { FTPFileNode } from "./model/ftp/ftpFileNode";
 import { HistoryNode } from "./provider/history/historyNode";
 import { ConnectService } from "./service/connect/connectService";
+import { Entry } from "./provider/fileExplorer";
 
 export function activate(context: vscode.ExtensionContext) {
 
     const serviceManager = new ServiceManager(context)
 
     activeEs(context)
+
 
     ConnectionNode.init()
     context.subscriptions.push(
@@ -55,7 +59,7 @@ export function activate(context: vscode.ExtensionContext) {
         ...initCommand({
             // util
             ...{
-                [CodeCommand.Refresh]: async (node: Node) => {
+                [CodeCommand.Refresh+"12"]: async (node: Node) => {
                     if (node) {
                         await node.getChildren(true)
                     } else {
@@ -325,6 +329,57 @@ export function activate(context: vscode.ExtensionContext) {
                 "mysql.delete.trigger": (triggerNode: TriggerNode) => {
                     triggerNode.drop();
                 },
+            },
+             // database
+            ...{
+                "github.cweijan.scripts.renameFile": async (resource: Entry) => {
+                    console.log("!!!", resource)
+                    const newFileName = await vscode.window.showInputBox({
+                      prompt: "Enter the new name for the file",
+                      value: path.basename(resource.uri.path),
+                    });
+                    // remove basename from uri path
+                     console.log(".path))", vscode.Uri.parse(path.dirname(resource.uri.path)))
+                    if (newFileName) {
+                      // Create the new file
+                      const newFileUri = vscode.Uri.joinPath(
+                        vscode.Uri.parse(path.dirname(resource.uri.path)),
+                        newFileName
+                      );
+                      console.log("newFileUri", newFileUri)
+                      await vscode.workspace.fs.rename(resource.uri, newFileUri, {overwrite: false});
+                    }
+                },
+                "github.cweijan.scripts.deleteFile": (resource: Entry) => {
+                    Util.confirm("Are you sure you want to delete this file?", () => {
+                        serviceManager.scriptsFileSystemProvider.delete(resource.uri, {recursive:true});
+                    })
+                },
+                "github.cweijan.scripts.createFile": (resource: Entry) => {
+                    serviceManager.scriptsFileSystemProvider.writeFile(resource.uri, new Uint8Array(0), {create: true, overwrite:false});
+                },
+                "github.cweijan.scripts.renameFolder": async (resource: Entry) => {
+                    const newFileName = await vscode.window.showInputBox({
+                      prompt: "Enter the new name for the folder",
+                      value: resource.uri.path,
+                    });
+                    if (newFileName) {
+                      // Create the new file
+                      const newFileUri = vscode.Uri.joinPath(
+                        resource.uri,
+                        newFileName
+                      );
+                      await vscode.workspace.fs.rename(resource.uri, newFileUri, {
+                        overwrite: true,
+                      });
+                    }
+                },
+                "github.cweijan.scripts.deleteFolder": (resource: Entry) => {
+                    serviceManager.scriptsFileSystemProvider.delete(resource.uri, {recursive:true});
+                },
+                "github.cweijan.scripts.createFolder": (resource: Entry) => {
+                    serviceManager.scriptsFileSystemProvider.createDirectory(resource.uri);
+                }
             },
         }),
     );
