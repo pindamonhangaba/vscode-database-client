@@ -530,6 +530,26 @@
 				"command": "mysql.mock.run",
 				"when": "resourceFilename =~ /mock\\.json$/ ",
 				"key": "f9"
+			},
+			{
+				"command": "github.cweijan.scripts.renameFile",
+				"key": "f2",
+				"when": "viewItem == file"
+			},
+			{
+				"command": "github.cweijan.scripts.deleteFile",
+				"key": "delete",
+				"when": "viewItem == file"
+			},
+			{
+				"command": "github.cweijan.scripts.renameFolder",
+				"key": "f2",
+				"when": "viewItem != file"
+			},
+			{
+				"command": "github.cweijan.scripts.deleteFolder",
+				"key": "delete",
+				"when": "viewItem != file"
 			}
 		],
 		"menus": {

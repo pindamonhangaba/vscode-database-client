@@ -103,14 +103,22 @@ export class ServiceManager {
 
     private initScriptView() {
         this.scriptsFileSystemProvider = new FileSystemProvider();
-        vscode.commands.registerCommand("github.cweijan.scripts.openFile", (resource) =>
-            vscode.window.showTextDocument(resource)
+        vscode.commands.registerCommand(
+          "github.cweijan.scripts.openFile",
+          (resource) =>
+            vscode.window.showTextDocument(resource, {
+              preserveFocus: true,
+              preview: true,
+            })
         );
 
         const treeview = vscode.window.createTreeView(
           "github.cweijan.scripts",
           { treeDataProvider: this.scriptsFileSystemProvider }
         );
+        treeview.onDidChangeSelection((e) => {
+            this.scriptsFileSystemProvider.onDidChangeTreeSelection(e);
+        });
         return treeview;
     }
 

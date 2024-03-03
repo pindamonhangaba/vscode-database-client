@@ -333,24 +333,26 @@ export function activate(context: vscode.ExtensionContext) {
              // database
             ...{
                 "github.cweijan.scripts.renameFile": async (resource: Entry) => {
-                    console.log("!!!", resource)
+                    if (!resource) {
+                        resource = serviceManager.scriptsFileSystemProvider.selected()[0];
+                    }
                     const newFileName = await vscode.window.showInputBox({
                       prompt: "Enter the new name for the file",
                       value: path.basename(resource.uri.path),
                     });
-                    // remove basename from uri path
-                     console.log(".path))", vscode.Uri.parse(path.dirname(resource.uri.path)))
                     if (newFileName) {
-                      // Create the new file
                       const newFileUri = vscode.Uri.joinPath(
                         vscode.Uri.parse(path.dirname(resource.uri.path)),
                         newFileName
                       );
-                      console.log("newFileUri", newFileUri)
                       await vscode.workspace.fs.rename(resource.uri, newFileUri, {overwrite: false});
                     }
                 },
                 "github.cweijan.scripts.deleteFile": (resource: Entry) => {
+                    if (!resource) {
+                      resource =
+                        serviceManager.scriptsFileSystemProvider.selected()[0];
+                    }
                     Util.confirm("Are you sure you want to delete this file?", () => {
                         serviceManager.scriptsFileSystemProvider.delete(resource.uri, {recursive:true});
                     })
@@ -359,23 +361,41 @@ export function activate(context: vscode.ExtensionContext) {
                     serviceManager.scriptsFileSystemProvider.writeFile(resource.uri, new Uint8Array(0), {create: true, overwrite:false});
                 },
                 "github.cweijan.scripts.renameFolder": async (resource: Entry) => {
+                    if (!resource) {
+                      resource =
+                        serviceManager.scriptsFileSystemProvider.selected()[0];
+                    }
+                    const parentDir = path.dirname(resource.uri.fsPath);
                     const newFileName = await vscode.window.showInputBox({
                       prompt: "Enter the new name for the folder",
-                      value: resource.uri.path,
+                      value: path.basename(resource.uri.path),
                     });
                     if (newFileName) {
-                      // Create the new file
-                      const newFileUri = vscode.Uri.joinPath(
-                        resource.uri,
-                        newFileName
-                      );
-                      await vscode.workspace.fs.rename(resource.uri, newFileUri, {
-                        overwrite: true,
-                      });
+                        const newFileUri = vscode.Uri.joinPath(
+                          vscode.Uri.file(parentDir),
+                          newFileName
+                        );
+                        await vscode.workspace.fs.rename(
+                          resource.uri,
+                          newFileUri,
+                          { overwrite: true }
+                        )
                     }
                 },
                 "github.cweijan.scripts.deleteFolder": (resource: Entry) => {
-                    serviceManager.scriptsFileSystemProvider.delete(resource.uri, {recursive:true});
+                     if (!resource) {
+                       resource =
+                         serviceManager.scriptsFileSystemProvider.selected()[0];
+                     }
+                     Util.confirm(
+                       "Are you sure you want to delete this folder?",
+                       () => {
+                         serviceManager.scriptsFileSystemProvider.delete(
+                           resource.uri,
+                           { recursive: true }
+                         );
+                       }
+                     );
                 },
                 "github.cweijan.scripts.createFolder": (resource: Entry) => {
                     serviceManager.scriptsFileSystemProvider.createDirectory(resource.uri);

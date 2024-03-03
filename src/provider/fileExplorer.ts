@@ -201,6 +201,8 @@ export class Entry {
 
 //#endregion
 
+const viewItemContext = "focusedItem";
+
 export class FileSystemProvider
   implements vscode.TreeDataProvider<Entry>, vscode.FileSystemProvider
 {
@@ -208,10 +210,27 @@ export class FileSystemProvider
   private defaultLocation: vscode.Uri = vscode.Uri.file(
     `${FileManager.storagePath}`
   );
+  private selection: Entry[] = [];
 
   constructor() {
     this._onDidChangeFile = new vscode.EventEmitter<vscode.FileChangeEvent[]>();
     this.watch(this.defaultLocation, { recursive: true, excludes: [] });
+  }
+
+  // Method to update the viewItem context key
+  private updateViewItemContext(selectedItems: Entry[]): void {
+    this.selection = selectedItems;
+  }
+
+  public selected(){
+    return this.selection
+  }
+
+  // Event handler for tree view selection change
+  public onDidChangeTreeSelection(
+    event: vscode.TreeViewSelectionChangeEvent<Entry>
+  ): void {
+    this.updateViewItemContext(event.selection);
   }
 
   get onDidChangeFile(): vscode.Event<vscode.FileChangeEvent[]> {
