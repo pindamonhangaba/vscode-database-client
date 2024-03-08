@@ -198,12 +198,6 @@
 				"category": "MySQL"
 			},
 			{
-				"command": "mysql.util.github",
-				"title": "%command.util.github%",
-				"icon": "$(github)",
-				"category": "MySQL"
-			},
-			{
 				"command": "mysql.connection.edit",
 				"title": "%command.connection.edit%",
 				"category": "MySQL"
@@ -534,22 +528,22 @@
 			{
 				"command": "github.cweijan.scripts.renameFile",
 				"key": "f2",
-				"when": "viewItem == file"
+				"when": "focusedView =~ /cweijan.scripts/ && viewItem == file"
 			},
 			{
 				"command": "github.cweijan.scripts.deleteFile",
 				"key": "delete",
-				"when": "viewItem == file"
+				"when": "focusedView =~ /cweijan.scripts/ && viewItem == file"
 			},
 			{
 				"command": "github.cweijan.scripts.renameFolder",
 				"key": "f2",
-				"when": "viewItem != file"
+				"when": "focusedView =~ /cweijan.scripts/ && viewItem != file"
 			},
 			{
 				"command": "github.cweijan.scripts.deleteFolder",
 				"key": "delete",
-				"when": "viewItem != file"
+				"when": "focusedView =~ /cweijan.scripts/ && viewItem != file"
 			}
 		],
 		"menus": {
@@ -606,11 +600,6 @@
 				{
 					"command": "mysql.connection.config",
 					"when": "view =~ /cweijan.+?ql/",
-					"group": "navigation@-3"
-				},
-				{
-					"command": "mysql.util.github",
-					"when": "view == github.cweijan.nosql",
 					"group": "navigation@-3"
 				},
 				{

@@ -59,7 +59,7 @@ export function activate(context: vscode.ExtensionContext) {
         ...initCommand({
             // util
             ...{
-                [CodeCommand.Refresh+"12"]: async (node: Node) => {
+                [CodeCommand.Refresh]: async (node: Node) => {
                     if (node) {
                         await node.getChildren(true)
                     } else {
@@ -107,9 +107,6 @@ export function activate(context: vscode.ExtensionContext) {
             },
             // externel data
             ...{
-                "mysql.util.github": () => {
-                    vscode.env.openExternal(vscode.Uri.parse('https://github.com/cweijan/vscode-database-client'));
-                },
                 "mysql.struct.diff": () => {
                     new DiffService().startDiff(serviceManager.provider);
                 },

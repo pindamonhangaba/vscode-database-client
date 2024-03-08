@@ -222,8 +222,8 @@ export class FileSystemProvider
     this.selection = selectedItems;
   }
 
-  public selected(){
-    return this.selection
+  public selected() {
+    return this.selection;
   }
 
   // Event handler for tree view selection change
@@ -432,24 +432,5 @@ export class FileSystemProvider
       treeItem.contextValue = "file";
     }
     return treeItem;
-  }
-}
-
-export class FileExplorer {
-  constructor(context: vscode.ExtensionContext) {
-    const treeDataProvider = new FileSystemProvider();
-    context.subscriptions.push(
-      vscode.window.createTreeView("github.cweijan.scripts", {
-        treeDataProvider,
-      })
-    );
-    vscode.commands.registerCommand(
-      "github.cweijan.scripts.openFile",
-      (resource) => this.openResource(resource)
-    );
-  }
-
-  private openResource(resource: vscode.Uri): void {
-    vscode.window.showTextDocument(resource);
   }
 }
