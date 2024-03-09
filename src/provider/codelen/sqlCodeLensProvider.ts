@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { SQLParser } from '../parser/sqlParser';
 
 export class SqlCodeLensProvider implements vscode.CodeLensProvider {
+    public activeConnectionName:string;
 
 
     onDidChangeCodeLenses?: vscode.Event<void>;
@@ -19,9 +20,16 @@ export class SqlCodeLensProvider implements vscode.CodeLensProvider {
             return []
         }
 
-        return SQLParser.parseBlocks(document).map(block =>
-            new vscode.CodeLens(block.range, { command: "mysql.codeLens.run", title: "▶ Run SQL", arguments: [block.sql], })
-        )
+        return SQLParser.parseBlocks(document).map(
+          (block) =>
+            new vscode.CodeLens(block.range, {
+              command: "mysql.codeLens.run",
+              title: `${
+                this.activeConnectionName ?? "[no connection]"
+              } ▶ Run SQL`,
+              arguments: [block.sql, document.uri.fsPath],
+            })
+        );
     }
 
 }

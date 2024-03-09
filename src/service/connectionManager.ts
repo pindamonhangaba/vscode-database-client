@@ -35,11 +35,19 @@ export class ConnectionManager {
 
     public static activeNode: Node;
     private static alivedConnection: { [key: string]: ConnectionWrapper } = {};
+    private static scriptConnections: { [key: string]: Node } = {};
     private static tunnelService = new SSHTunnelService();
 
     public static tryGetConnection(): Node {
 
         return this.getByActiveFile() || this.activeNode;
+    }
+
+    public static async getConnectionFor(uri:string): Promise<Node> {
+        if (!this.scriptConnections[uri]){
+            this.scriptConnections[uri] = (await this.chooseConnection());
+        }
+          return this.scriptConnections[uri];
     }
 
     public static getActiveConnectByKey(key: string): ConnectionWrapper {
@@ -166,6 +174,27 @@ export class ConnectionManager {
             connection.connection.end();
         } catch (error) {
         }
+    }
+
+    private static async chooseConnection(): Promise<Node> {
+        const res = await vscode.window
+          .showQuickPick(
+            Object.values(Node.nodeCache as { [k: string]: Node })
+              .map((n) => n.name)
+              .filter((n) => !!n),
+            { placeHolder: "Select a connection" }
+          )
+          
+        const n = Object.values(Node.nodeCache as { [k: string]: Node }).find((n) => n.name == res);
+        const dbs = await n.getChildren();
+        const dres = await vscode.window.showQuickPick(
+          Object.values(dbs)
+            .map((n) => n.label)
+            .filter((n) => !!n),
+          { placeHolder: "Select a database" }
+        );
+        const dn = dbs.find((n) => n.label == dres);
+        return dn;
     }
 
     public static getByActiveFile(): Node {

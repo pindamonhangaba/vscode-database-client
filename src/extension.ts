@@ -188,10 +188,32 @@ export function activate(context: vscode.ExtensionContext) {
             ...{
                 "mysql.runQuery": (sql:string) => {
                     if (typeof sql != 'string') { sql = null; }
-                    QueryUnit.runQuery(sql, ConnectionManager.tryGetConnection());
+                    const uri = vscode.window.activeTextEditor?.document.uri?.fsPath;
+                    if (uri) {
+                      ConnectionManager.getConnectionFor(uri)
+                        .then((conn) =>
+                          QueryUnit.runQuery(sql, conn, {
+                            split: true,
+                            recordHistory: true,
+                          })
+                        )
+                        .catch(console.error);
+                    }else {
+                        QueryUnit.runQuery(sql, ConnectionManager.tryGetConnection());
+                    }
                 },
                 "mysql.runAllQuery": () => {
+                    const uri =
+                      vscode.window.activeTextEditor?.document.uri?.fsPath;
+                    if (uri) {
+                      ConnectionManager.getConnectionFor(uri)
+                        .then((conn) =>
+                            QueryUnit.runQuery(null, conn, { runAll: true })
+                        )
+                        .catch(console.error);
+                    } else {
                     QueryUnit.runQuery(null, ConnectionManager.tryGetConnection(), { runAll: true });
+                    }
                 },
                 "mysql.query.switch": async (databaseOrConnectionNode: SchemaNode | ConnectionNode | EsConnectionNode | ESIndexNode) => {
                     if (databaseOrConnectionNode) {
@@ -266,8 +288,20 @@ export function activate(context: vscode.ExtensionContext) {
                 "mysql.table.find": (tableNode: TableNode) => {
                     tableNode.openTable();
                 },
-                "mysql.codeLens.run": (sql: string) => {
-                    QueryUnit.runQuery(sql, ConnectionManager.tryGetConnection(), { split: true, recordHistory: true })
+                "mysql.codeLens.run": (sql: string, uri:string) => {
+                    if(uri){
+                        ConnectionManager.getConnectionFor(uri)
+                          .then((conn) =>
+                            QueryUnit.runQuery(
+                              sql,
+                              conn,
+                              { split: true, recordHistory: true }
+                            )
+                          )
+                          .catch(console.error);
+                    }else{
+                        QueryUnit.runQuery(sql, ConnectionManager.tryGetConnection(), { split: true, recordHistory: true });
+                    }
                 },
                 "mysql.table.design": (tableNode: TableNode) => {
                     tableNode.designTable();
