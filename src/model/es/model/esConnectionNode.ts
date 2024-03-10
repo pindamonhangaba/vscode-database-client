@@ -53,7 +53,7 @@ export class EsConnectionNode extends Node {
                 EsConnectionNode.versionMap[this.label]=this.description
                 DbTreeDataProvider.refresh(this)
             }).catch(err=>{
-                console.log(err)
+                console.error(err)
             })
         }
 

@@ -43,6 +43,7 @@ import { FTPFileNode } from "./model/ftp/ftpFileNode";
 import { HistoryNode } from "./provider/history/historyNode";
 import { ConnectService } from "./service/connect/connectService";
 import { Entry } from "./provider/fileExplorer";
+import { Global } from "./common/global";
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -370,6 +371,21 @@ export function activate(context: vscode.ExtensionContext) {
             },
              // database
             ...{
+                "github.cweijan.scripts.chooseScriptsFolder": async (resource: Entry) => {
+                    const folderUris = await vscode.window.showOpenDialog({
+                      canSelectFiles: false,
+                      canSelectFolders: true,
+                      canSelectMany: false,
+                      openLabel: "Select Folder",
+                    });
+
+                    // Check if the user selected a folder
+                    if (folderUris && folderUris.length > 0) {
+                      const selectedFolderUri = folderUris[0];
+                      
+                      Global.updateConfig("scriptsFolder", selectedFolderUri.fsPath);
+                    }
+                },
                 "github.cweijan.scripts.renameFile": async (resource: Entry) => {
                     if (!resource) {
                         resource = serviceManager.scriptsFileSystemProvider.selected()[0];

@@ -3,6 +3,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { FileManager } from "@/common/filesManager";
 import { ModelType } from "@/common/constants";
+import { Global } from "@/common/global";
 
 //#region Utilities
 
@@ -192,7 +193,6 @@ export class Entry {
   constructor(uri: vscode.Uri, type: vscode.FileType) {
     this.uri = uri;
     this.type = type;
-    console.log(uri.fsPath, type);
     if (type !== vscode.FileType.Directory) {
       this.contextValue = ModelType.FILE;
     }
@@ -206,6 +206,7 @@ const viewItemContext = "focusedItem";
 export class FileSystemProvider
   implements vscode.TreeDataProvider<Entry>, vscode.FileSystemProvider
 {
+  private watcher: vscode.Disposable;
   private _onDidChangeFile: vscode.EventEmitter<vscode.FileChangeEvent[]>;
   private defaultLocation: vscode.Uri = vscode.Uri.file(
     `${FileManager.storagePath}`
@@ -214,12 +215,37 @@ export class FileSystemProvider
 
   constructor() {
     this._onDidChangeFile = new vscode.EventEmitter<vscode.FileChangeEvent[]>();
-    this.watch(this.defaultLocation, { recursive: true, excludes: [] });
+    this.watcher = this.watch(this.defaultLocation, {
+      recursive: true,
+      excludes: [],
+    });
+    
+    vscode.workspace.onDidChangeConfiguration(
+      (event) => {
+        // Check if the configuration change affects your extension
+        if (event.affectsConfiguration("database-client.scriptsFolder")) {
+          // Retrieve the updated setting value
+          this.defaultLocation = Global.getConfig("scriptsFolder")
+            ? vscode.Uri.file(Global.getConfig("scriptsFolder"))
+            : this.defaultLocation;
+        }
+        this.refresh();
+      }
+    );
   }
 
   // Method to update the viewItem context key
   private updateViewItemContext(selectedItems: Entry[]): void {
     this.selection = selectedItems;
+  }
+
+  public async refresh() {
+    this.watcher?.dispose?.();
+    this.watcher = this.watch(this.defaultLocation, {
+      recursive: true,
+      excludes: [],
+    });
+    this._onDidChangeTreeData.fire();
   }
 
   public selected() {
@@ -393,12 +419,8 @@ export class FileSystemProvider
       );
     }
 
-    const workspaceFolderUri =
-      (vscode.workspace.workspaceFolders ?? []).filter(
-        (folder) => folder.uri.scheme === "file"
-      )[0]?.uri ?? this.defaultLocation;
-    if (workspaceFolderUri) {
-      const children = await this.readDirectory(workspaceFolderUri);
+    if (this.defaultLocation) {
+      const children = await this.readDirectory(this.defaultLocation);
       children.sort((a, b) => {
         if (a[1] === b[1]) {
           return a[0].localeCompare(b[0]);
@@ -408,7 +430,7 @@ export class FileSystemProvider
       return children.map(
         ([name, type]) =>
           new Entry(
-            vscode.Uri.file(path.join(workspaceFolderUri.fsPath, name)),
+            vscode.Uri.file(path.join(this.defaultLocation.fsPath, name)),
             type
           )
       );

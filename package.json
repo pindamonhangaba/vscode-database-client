@@ -103,6 +103,11 @@
 		},
 		"commands": [
 			{
+				"command": "github.cweijan.scripts.chooseScriptsFolder",
+				"title": "Open scripts folder",
+				"icon": "$(folder-library)"
+			},
+			{
 				"command": "github.cweijan.scripts.renameFile",
 				"title": "Rename"
 			},
@@ -603,6 +608,11 @@
 					"group": "navigation@-3"
 				},
 				{
+					"command": "github.cweijan.scripts.chooseScriptsFolder",
+					"when": "view == github.cweijan.scripts",
+					"group": "navigation@-3"
+				},
+				{
 					"command": "github.cweijan.scripts.createFolder",
 					"when": "view == github.cweijan.scripts",
 					"group": "navigation@-3"
@@ -1089,6 +1099,11 @@
 					"type": "boolean",
 					"default": false,
 					"description": "Show trigger on tree view."
+				},
+				"database-client.scriptsFolder": {
+					"type": "string",
+					"default": "",
+					"description": "Scripts folder location."
 				}
 			}
 		}

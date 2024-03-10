@@ -42,7 +42,9 @@ export class Global {
      * @param value config value 
      */
     public static async updateConfig(name: string, value: any) {
-        await vscode.workspace.getConfiguration(Constants.CONFIG_PREFIX).update(name, value, true)
+        await vscode.workspace
+          .getConfiguration(Constants.CONFIG_PREFIX)
+          .update(name, value, vscode.ConfigurationTarget.Global);
     }
 
 }
