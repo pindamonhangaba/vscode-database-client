@@ -189,8 +189,8 @@ export function activate(context: vscode.ExtensionContext) {
                 "mysql.runQuery": (sql:string) => {
                     if (typeof sql != 'string') { sql = null; }
                     const uri = vscode.window.activeTextEditor?.document.uri?.fsPath;
-                    if (uri) {
-                      ConnectionManager.getConnectionFor(uri)
+                    if (uri && !uri.includes("cweijan")) {
+                      ConnectionManager.getConnectionFor(uri, { refresh: true })
                         .then((conn) =>
                           QueryUnit.runQuery(sql, conn, {
                             split: true,
@@ -198,15 +198,18 @@ export function activate(context: vscode.ExtensionContext) {
                           })
                         )
                         .catch(console.error);
-                    }else {
-                        QueryUnit.runQuery(sql, ConnectionManager.tryGetConnection());
+                    } else {
+                      QueryUnit.runQuery(
+                        sql,
+                        ConnectionManager.tryGetConnection()
+                      );
                     }
                 },
                 "mysql.runAllQuery": () => {
                     const uri =
                       vscode.window.activeTextEditor?.document.uri?.fsPath;
-                    if (uri) {
-                      ConnectionManager.getConnectionFor(uri)
+                    if (uri && !uri.includes("cweijan")) {
+                      ConnectionManager.getConnectionFor(uri, {refresh:true})
                         .then((conn) =>
                             QueryUnit.runQuery(null, conn, { runAll: true })
                         )
@@ -289,20 +292,22 @@ export function activate(context: vscode.ExtensionContext) {
                     tableNode.openTable();
                 },
                 "mysql.codeLens.run": (sql: string, uri:string) => {
-                    if(uri){
-                        ConnectionManager.getConnectionFor(uri)
-                          .then((conn) => {
-                            serviceManager.codeLenProvider.refresh({node:conn});
-                            QueryUnit.runQuery(
-                              sql,
-                              conn,
-                              { split: true, recordHistory: true }
-                            )
-                          }
-                          )
-                          .catch(console.error);
-                    }else{
-                        QueryUnit.runQuery(sql, ConnectionManager.tryGetConnection(), { split: true, recordHistory: true });
+                    if (uri && !uri.includes("cweijan")) {
+                      ConnectionManager.getConnectionFor(uri, { refresh: true })
+                        .then((conn) => {
+                          serviceManager.codeLenProvider.refresh();
+                          QueryUnit.runQuery(sql, conn, {
+                            split: true,
+                            recordHistory: true,
+                          });
+                        })
+                        .catch(console.error);
+                    } else {
+                      QueryUnit.runQuery(
+                        sql,
+                        ConnectionManager.tryGetConnection(),
+                        { split: true, recordHistory: true }
+                      );
                     }
                 },
                 "mysql.table.design": (tableNode: TableNode) => {

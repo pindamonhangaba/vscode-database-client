@@ -3,16 +3,15 @@ import { Global } from '@/common/global';
 import * as vscode from 'vscode';
 import { SQLParser } from '../parser/sqlParser';
 import { Node } from '@/model/interface/node';
+import { ConnectionManager } from '@/service/connectionManager';
 
 export class SqlCodeLensProvider implements vscode.CodeLensProvider {
-    public activeConnectionName:string;
 
 
     private _onDidChangeCodeLenses: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
     readonly onDidChangeCodeLenses: vscode.Event<void> = this._onDidChangeCodeLenses.event;
 
-    public refresh({node}:{node:Node}): void {
-        this.activeConnectionName=(node.parent.name||node.parent.label) +" "+(node.label||node.name);
+    public refresh(): void {
         this._onDidChangeCodeLenses.fire();
     }
 
@@ -28,12 +27,15 @@ export class SqlCodeLensProvider implements vscode.CodeLensProvider {
             return []
         }
 
+        const node = ConnectionManager.getConnectionFoSync(document.uri.fsPath);
+        const label = [(node?.parent.name||node?.parent.label), +(node?.label||node?.name)].filter(n => !!n);
+
         return SQLParser.parseBlocks(document).map(
           (block) =>
             new vscode.CodeLens(block.range, {
               command: "mysql.codeLens.run",
               title: `${
-                this.activeConnectionName ?? "[no connection]"
+                `${label.join(" ")}` ?? "[no connection]"
               } ▶ Run SQL`,
               arguments: [block.sql, document.uri.fsPath],
             })

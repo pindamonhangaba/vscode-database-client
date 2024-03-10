@@ -43,11 +43,15 @@ export class ConnectionManager {
         return this.getByActiveFile() || this.activeNode;
     }
 
-    public static async getConnectionFor(uri:string): Promise<Node> {
-        if (!this.scriptConnections[uri]){
+    public static async getConnectionFor(uri:string, {refresh = false}:{refresh:boolean}): Promise<Node> {
+        if (!this.scriptConnections[uri] && refresh){
             this.scriptConnections[uri] = (await this.chooseConnection());
         }
           return this.scriptConnections[uri];
+    }
+
+    public static getConnectionFoSync(uri:string):Node|undefined {
+        return this.scriptConnections[uri];
     }
 
     public static getActiveConnectByKey(key: string): ConnectionWrapper {
