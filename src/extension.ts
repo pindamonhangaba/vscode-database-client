@@ -291,12 +291,14 @@ export function activate(context: vscode.ExtensionContext) {
                 "mysql.codeLens.run": (sql: string, uri:string) => {
                     if(uri){
                         ConnectionManager.getConnectionFor(uri)
-                          .then((conn) =>
+                          .then((conn) => {
+                            serviceManager.codeLenProvider.refresh({node:conn});
                             QueryUnit.runQuery(
                               sql,
                               conn,
                               { split: true, recordHistory: true }
                             )
+                          }
                           )
                           .catch(console.error);
                     }else{

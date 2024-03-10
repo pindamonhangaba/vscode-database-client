@@ -2,12 +2,20 @@ import { ConfigKey } from '@/common/constants';
 import { Global } from '@/common/global';
 import * as vscode from 'vscode';
 import { SQLParser } from '../parser/sqlParser';
+import { Node } from '@/model/interface/node';
 
 export class SqlCodeLensProvider implements vscode.CodeLensProvider {
     public activeConnectionName:string;
 
 
-    onDidChangeCodeLenses?: vscode.Event<void>;
+    private _onDidChangeCodeLenses: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
+    readonly onDidChangeCodeLenses: vscode.Event<void> = this._onDidChangeCodeLenses.event;
+
+    public refresh({node}:{node:Node}): void {
+        this.activeConnectionName=(node.parent.name||node.parent.label) +" "+(node.label||node.name);
+        this._onDidChangeCodeLenses.fire();
+    }
+
     provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.ProviderResult<vscode.CodeLens[]> {
         return this.parseCodeLens(document)
     }
