@@ -196,6 +196,7 @@ export function activate(context: vscode.ExtensionContext) {
                           QueryUnit.runQuery(sql, conn, {
                             split: true,
                             recordHistory: true,
+                            simpleView: true,
                           })
                         )
                         .catch(console.error);
@@ -210,9 +211,12 @@ export function activate(context: vscode.ExtensionContext) {
                     const uri =
                       vscode.window.activeTextEditor?.document.uri?.fsPath;
                     if (uri && !uri.includes("cweijan")) {
-                      ConnectionManager.getConnectionFor(uri, {refresh:true})
+                      ConnectionManager.getConnectionFor(uri, { refresh: true })
                         .then((conn) =>
-                            QueryUnit.runQuery(null, conn, { runAll: true })
+                          QueryUnit.runQuery(null, conn, {
+                            runAll: true,
+                            simpleView: true,
+                          })
                         )
                         .catch(console.error);
                     } else {
@@ -300,6 +304,7 @@ export function activate(context: vscode.ExtensionContext) {
                           QueryUnit.runQuery(sql, conn, {
                             split: true,
                             recordHistory: true,
+                            simpleView: true,
                           });
                         })
                         .catch(console.error);

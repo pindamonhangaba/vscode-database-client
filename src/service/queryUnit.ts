@@ -180,4 +180,5 @@ export interface QueryOption {
      * runAll if get sql from editor.
      */
     runAll?: boolean;
+    simpleView?:boolean;
 }

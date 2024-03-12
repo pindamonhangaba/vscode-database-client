@@ -44,6 +44,7 @@ export class QueryPage {
                     }
                     queryParam.res.transId = Trans.transId;
                     queryParam.res.viewId = queryParam.queryOption?.viewId;
+                    queryParam.res.simpleView = queryParam.queryOption?.simpleView;
                     handler.emit(queryParam.type, { ...queryParam.res, dbType: dbOption.dbType })
                 }).on('execute', (params) => {
                     QueryUnit.runQuery(params.sql, dbOption, queryParam.queryOption);
