@@ -209,7 +209,7 @@ export class FileSystemProvider
   private watcher: vscode.Disposable;
   private _onDidChangeFile: vscode.EventEmitter<vscode.FileChangeEvent[]>;
   private defaultLocation: vscode.Uri = vscode.Uri.file(
-    `${FileManager.storagePath}`
+    `${Global.getConfig("scriptsFolder") ?? "./scripts"}`
   );
   private selection: Entry[] = [];
 
@@ -219,24 +219,26 @@ export class FileSystemProvider
       recursive: true,
       excludes: [],
     });
-    
-    vscode.workspace.onDidChangeConfiguration(
-      (event) => {
-        // Check if the configuration change affects your extension
-        if (event.affectsConfiguration("database-client.scriptsFolder")) {
-          // Retrieve the updated setting value
-          this.defaultLocation = Global.getConfig("scriptsFolder")
-            ? vscode.Uri.file(Global.getConfig("scriptsFolder"))
-            : this.defaultLocation;
-        }
-        this.refresh();
+
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      // Check if the configuration change affects your extension
+      if (event.affectsConfiguration("database-client.scriptsFolder")) {
+        // Retrieve the updated setting value
+        this.defaultLocation = Global.getConfig("scriptsFolder")
+          ? vscode.Uri.file(Global.getConfig("scriptsFolder"))
+          : this.defaultLocation;
       }
-    );
+      this.refresh();
+    });
   }
 
   // Method to update the viewItem context key
   private updateViewItemContext(selectedItems: Entry[]): void {
     this.selection = selectedItems;
+  }
+
+  public getDefaultLocation() {
+    return this.defaultLocation;
   }
 
   public async refresh() {

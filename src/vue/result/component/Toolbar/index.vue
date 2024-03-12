@@ -25,7 +25,7 @@
 
 <script>
 export default {
-  props: ["costTime", "search", "showFullBtn", "page"],
+  props: ["costTime", "search", "showFullBtn", "page", "simpleView"],
   data() {
     return {
       searchInput: null,

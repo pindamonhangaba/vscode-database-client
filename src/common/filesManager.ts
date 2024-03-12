@@ -1,13 +1,12 @@
 import * as path from 'path';
 import * as vscode from "vscode";
 import * as fs from 'fs';
-import { Global } from './global';
 
 export class FileManager {
 
     public static storagePath: string;
     public static init(context: vscode.ExtensionContext) {
-        this.storagePath = Global.getConfig("scriptsFolder") || context.globalStoragePath;
+        this.storagePath = context.globalStoragePath;
     }
 
     public static show(fileName: string): Promise<vscode.TextEditor> {

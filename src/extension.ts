@@ -416,8 +416,25 @@ export function activate(context: vscode.ExtensionContext) {
                         serviceManager.scriptsFileSystemProvider.delete(resource.uri, {recursive:true});
                     })
                 },
-                "github.cweijan.scripts.createFile": (resource: Entry) => {
-                    serviceManager.scriptsFileSystemProvider.writeFile(resource.uri, new Uint8Array(0), {create: true, overwrite:false});
+                "github.cweijan.scripts.createFile": async (resource?: Entry) => {
+                    const parentUri = resource
+                      ? resource?.uri
+                      : serviceManager.scriptsFileSystemProvider.getDefaultLocation();
+                    const newFileName = await vscode.window.showInputBox({
+                      prompt: "Enter the name for the file",
+                      value: "",
+                    });
+                    if (newFileName) {
+                      const newFileUri = vscode.Uri.joinPath(
+                        parentUri,
+                        newFileName
+                      );
+                      serviceManager.scriptsFileSystemProvider.writeFile(
+                        newFileUri,
+                        new Uint8Array(0),
+                        { create: true, overwrite: false }
+                      );
+                    }
                 },
                 "github.cweijan.scripts.renameFolder": async (resource: Entry) => {
                     if (!resource) {
@@ -456,8 +473,27 @@ export function activate(context: vscode.ExtensionContext) {
                        }
                      );
                 },
-                "github.cweijan.scripts.createFolder": (resource: Entry) => {
-                    serviceManager.scriptsFileSystemProvider.createDirectory(resource.uri);
+                "github.cweijan.scripts.createFolder": async (resource?: Entry) => {
+                    const parentUri = resource
+                      ? resource?.uri
+                      : serviceManager.scriptsFileSystemProvider.getDefaultLocation();
+                    const newFileName = await vscode.window.showInputBox({
+                      prompt: "Enter the name for the directory",
+                      value: "",
+                    });
+                    try{
+                    if (newFileName) {
+                      const newFileUri = vscode.Uri.joinPath(
+                        parentUri,
+                        newFileName
+                      );
+                      serviceManager.scriptsFileSystemProvider.createDirectory(
+                        newFileUri
+                      );
+                    }
+                    }catch(err){
+                        console.warn(err);
+                    }
                 }
             },
         }),
