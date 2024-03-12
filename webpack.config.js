@@ -19,6 +19,7 @@ module.exports = [
             filename: 'extension.js',
             libraryTarget: 'commonjs2',
             devtoolModuleFilenameTemplate: '[absoluteResourcePath]',
+            hashFunction: 'sha512',
         },
         externals: {
             vscode: 'commonjs vscode',
@@ -55,7 +56,8 @@ module.exports = [
         ],
         output: {
             path: path.resolve(__dirname, 'out'),
-            filename: 'webview/js/[name].js'
+            filename: 'webview/js/[name].js',
+            hashFunction: 'sha512',
         },
         resolve: {
             extensions: ['.vue', '.js'],
