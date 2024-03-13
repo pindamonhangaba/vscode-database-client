@@ -1,6 +1,6 @@
 {
-	"name": "vscode-mysql-client2",
-	"displayName": "MySQL",
+	"name": "vscode-mor-tables",
+	"displayName": "Mor Tables",
 	"description": "Database Client for vscode",
 	"version": "3.9.8",
 	"publisher": "cweijan",
@@ -29,7 +29,7 @@
 		"url": "https://github.com/cweijan/vscode-database-client.git"
 	},
 	"activationEvents": [
-		"*"
+		"onView:github-cweijan-mysql"
 	],
 	"main": "./out/extension",
 	"contributes": {
