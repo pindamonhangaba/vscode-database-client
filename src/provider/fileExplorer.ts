@@ -208,18 +208,11 @@ export class FileSystemProvider
 {
   private watcher: vscode.Disposable;
   private _onDidChangeFile: vscode.EventEmitter<vscode.FileChangeEvent[]>;
-  private defaultLocation: vscode.Uri = vscode.Uri.file(
-    `${Global.getConfig("scriptsFolder") ?? "./scripts"}`
-  );
+  private defaultLocation?: vscode.Uri;
   private selection: Entry[] = [];
 
-  constructor() {
+  constructor(context: vscode.ExtensionContext) {
     this._onDidChangeFile = new vscode.EventEmitter<vscode.FileChangeEvent[]>();
-    this.watcher = this.watch(this.defaultLocation, {
-      recursive: true,
-      excludes: [],
-    });
-
     vscode.workspace.onDidChangeConfiguration((event) => {
       // Check if the configuration change affects your extension
       if (event.affectsConfiguration("database-client.scriptsFolder")) {
@@ -230,6 +223,21 @@ export class FileSystemProvider
       }
       this.refresh();
     });
+
+    if (Global.getConfig("scriptsFolder")) {
+      this.defaultLocation = vscode.Uri.file(
+        `${Global.getConfig("scriptsFolder")}`
+      );
+    } else {
+      const dir = vscode.Uri.joinPath(context.globalStorageUri, "./scripts");
+      this.createDirectory(dir).then(() => {
+        this.defaultLocation = dir;
+        this.watcher = this.watch(this.defaultLocation, {
+          recursive: true,
+          excludes: [],
+        });
+      });
+    }
   }
 
   // Method to update the viewItem context key
@@ -332,7 +340,7 @@ export class FileSystemProvider
     return Promise.resolve(result);
   }
 
-  createDirectory(uri: vscode.Uri): void | Thenable<void> {
+  createDirectory(uri: vscode.Uri): Promise<void> {
     return _.mkdirp(uri) as any;
   }
 

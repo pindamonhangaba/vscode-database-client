@@ -102,7 +102,7 @@ export class ServiceManager {
     }
 
     private initScriptView() {
-        this.scriptsFileSystemProvider = new FileSystemProvider();
+        this.scriptsFileSystemProvider = new FileSystemProvider(this.context);
         vscode.commands.registerCommand(
           "github.cweijan.scripts.openFile",
           (resource) =>
